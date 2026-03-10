@@ -71,13 +71,15 @@ public class HelloWorld {
         q: "מה הפלט של:\nSystem.out.println(\"Hello\");",
         options: ["Hello", "hello", "\"Hello\"", "שגיאה"],
         answer: 0,
-        explanation: "println מדפיס את הטקסט בלי גרשיים"
+        explanation: "println מדפיס את הטקסט בלי גרשיים",
+        hints: ["println = print line – מדפיסה מה שבתוך הסוגריים", "הגרשיים בקוד הם חלק מהsyntax, לא מהפלט", "מה כתוב בתוך הגרשיים?"]
       },
       {
         q: "מה מסיים כל שורה (statement) ב-Java?",
         options: [":", ".", ";", ","],
         answer: 2,
-        explanation: "נקודה-פסיק ; מסיימת כל statement ב-Java"
+        explanation: "נקודה-פסיק ; מסיימת כל statement ב-Java",
+        hints: ["חשבו על תו שמשמש בסוף משפטים", "בלי התו הזה Java תציג שגיאת compile", "זה שילוב של נקודה ופסיק..."]
       },
       {
         q: "מה זה 'Write Once, Run Anywhere'?",
@@ -88,13 +90,15 @@ public class HelloWorld {
           "כל התשובות נכונות"
         ],
         answer: 0,
-        explanation: "זו הפילוסופיה של Java – קוד אחד עובד על כל מערכת הפעלה"
+        explanation: "זו הפילוסופיה של Java – קוד אחד עובד על כל מערכת הפעלה",
+        hints: ["WORA – ראשי תיבות של המשפט", "Java קומפילה לbytecode שרץ בכל מקום", "'Write Once' = כותבים פעם אחת..."]
       },
       {
         q: "איזה מהשמות הבאים חוקי למשתנה ב-Java?",
         options: ["1myVar", "my-var", "myVar", "class"],
         answer: 2,
-        explanation: "myVar חוקי: מתחיל באות קטנה, ללא תווים מיוחדים, ואינו מילה שמורה"
+        explanation: "myVar חוקי: מתחיל באות קטנה, ללא תווים מיוחדים, ואינו מילה שמורה",
+        hints: ["שם משתנה לא יכול להתחיל בספרה", "מקפים (-) לא מותרים בשמות משתנים", "מילות מפתח כמו class הן מילים שמורות"]
       },
       {
         q: "מה ההבדל בין System.out.print ל-System.out.println?",
@@ -105,7 +109,32 @@ public class HelloWorld {
           "println מדפיס מספרים בלבד"
         ],
         answer: 1,
-        explanation: "println (print line) מוסיף '\\n' בסוף אוטומטית; print לא מוסיף"
+        explanation: "println (print line) מוסיף '\\n' בסוף אוטומטית; print לא מוסיף",
+        hints: ["שימו לב לסיומת 'ln' ב-println", "ln = line – רמז לירידת שורה", "מה קורה אחרי שprintln מדפיס?"]
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World\")\n    }\n}",
+        options: [
+          "חסר ; אחרי println",
+          "חסר return בסוף main",
+          "הטקסט צריך להיות בגרשיים בודדות",
+          "אין באג"
+        ],
+        answer: 0,
+        explanation: "כל statement ב-Java חייב להסתיים ב-; נקודה-פסיק. חסר אחרי println(\"Hello World\")"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nint 2count = 0;\nSystem.out.println(2count);",
+        options: [
+          "int לא יכול להיות 0",
+          "שם משתנה לא יכול להתחיל בספרה",
+          "חסר ; בשורה השנייה",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "שמות משתנים ב-Java לא יכולים להתחיל בספרה. count2 תקין, אבל 2count לא."
       }
     ]
   },
@@ -246,6 +275,30 @@ public class HelloWorld {
         options: ["9", "10", "9.7", "שגיאה"],
         answer: 0,
         explanation: "Type casting לא מעגל! הוא חותך את החלק העשרוני. 9.7 הופך ל-9"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nString a = \"hello\";\nif (a == \"hello\") {\n    System.out.println(\"match!\");\n}",
+        options: [
+          "String לא יכול להיות בגרשיים מסולסלים",
+          "משווים String עם == במקום .equals()",
+          "חסר else",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "Strings חייבים להיות מושווים עם .equals() ולא עם ==. הנכון: a.equals(\"hello\")"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nint x = 3.14;",
+        options: [
+          "3.14 גדול מדי עבור int",
+          "int לא יכול לשמור מספר עשרוני ללא casting",
+          "חסר f אחרי 3.14",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "int מחזיק רק מספרים שלמים. 3.14 הוא double. נכון: double x = 3.14 או int x = (int) 3.14"
       }
     ]
   },
@@ -402,6 +455,30 @@ public class HelloWorld {
         ],
         answer: 1,
         explanation: "switch מתאים כשמשווים ערך אחד לרשימה של ערכים ספציפיים (case). לא לטווחים!"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nint score = 90;\nif (score = 100) {\n    System.out.println(\"Perfect!\");\n}",
+        options: [
+          "חסר else",
+          "= במקום == בתנאי",
+          "println לא קיים",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "בתנאי if צריך == להשוואה, לא = להצבה. if (score == 100) הוא הנכון"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nint x = 5;\nif (x > 3) {\n    System.out.println(\"big\");\nelse {\n    System.out.println(\"small\");\n}",
+        options: [
+          "חסר } לסגירת if לפני else",
+          "x לא ניתן לאתחול כ-5",
+          "חסר ; אחרי else",
+          "אין באג"
+        ],
+        answer: 0,
+        explanation: "חסר } לסגירת הבלוק של if לפני else. כל בלוק {} חייב להיסגר לפני פתיחת הבא."
       }
     ]
   },
@@ -557,6 +634,30 @@ public class HelloWorld {
         options: ["1 2 3 4 5", "1 2 4 5", "3", "1 2"],
         answer: 1,
         explanation: "continue מדלג על 3 אבל ממשיך לשאר: 1 2 4 5"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nfor (int i = 0, i < 5, i++) {\n    System.out.println(i);\n}",
+        options: [
+          "i צריך להתחיל מ-1",
+          "פסיקים , במקום נקודה-פסיק ; ב-for",
+          "חסר {} סביב גוף הלולאה",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "ב-for loop, שלושת החלקים מופרדים ב-; נקודה-פסיק, לא בפסיק. הנכון: for (int i = 0; i < 5; i++)"
+      },
+      {
+        type: "bug",
+        q: "מה הבאג בקוד הזה?\nint i = 0;\nwhile (i < 5) {\n    System.out.println(i);\n}",
+        options: [
+          "i צריך להתחיל מ-1",
+          "חסר i++ בגוף הלולאה – תוצאה: לולאה אינסופית",
+          "System.out.println לא עובד בתוך while",
+          "אין באג"
+        ],
+        answer: 1,
+        explanation: "חסר i++ אז i אף פעם לא מגיע ל-5. הלולאה תרוץ לנצח (infinite loop)!"
       }
     ]
   },

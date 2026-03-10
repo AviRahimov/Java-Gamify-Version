@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function QuizView({ quiz, onComplete, chapterXP }) {
   const [current,         setCurrent]         = useState(0);
@@ -7,6 +7,8 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
   const [score,           setScore]           = useState(0);
   const [finished,        setFinished]        = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [hintsShown,      setHintsShown]      = useState(0);
+  const startTimeRef = useRef(Date.now());
 
   function handleSelect(idx) {
     if (answered) return;
@@ -24,23 +26,29 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
       setSelected(null);
       setAnswered(false);
       setShowExplanation(false);
+      setHintsShown(0);
     }
   }
 
   // ── Results screen ──────────────────────────────────────────────────────
   if (finished) {
-    const pct    = Math.round((score / quiz.length) * 100);
-    const earned = Math.round(chapterXP * (pct / 100));
-    const emoji  = pct === 100 ? "🏆" : pct >= 70 ? "⭐" : pct >= 50 ? "💪" : "📚";
+    const pct       = Math.round((score / quiz.length) * 100);
+    const earned    = Math.round(chapterXP * (pct / 100));
+    const timeSecs  = Math.round((Date.now() - startTimeRef.current) / 1000);
+    const isFast    = timeSecs < 60;
+    const emoji     = pct === 100 ? "🏆" : pct >= 70 ? "⭐" : pct >= 50 ? "💪" : "📚";
     return (
       <div style={{ textAlign: "center", padding: "40px 20px" }}>
         <div style={{ fontSize: 72, marginBottom: 16 }}>{emoji}</div>
         <div style={{ fontSize: 32, fontWeight: 900, color: "#f0f9ff", marginBottom: 8 }}>
           {score}/{quiz.length} נכון!
         </div>
-        <div style={{ fontSize: 48, fontWeight: 900, color: "#fbbf24", marginBottom: 24, textShadow: "0 0 30px #fbbf2488" }}>
+        <div style={{ fontSize: 48, fontWeight: 900, color: "#fbbf24", marginBottom: 8, textShadow: "0 0 30px #fbbf2488" }}>
           +{earned} XP
         </div>
+        {isFast && (
+          <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 8 }}>⚡ מהיר להפליא! {timeSecs} שניות</div>
+        )}
         <div style={{ color: "#94a3b8", marginBottom: 32 }}>
           {pct === 100
             ? "מושלם! אתה Java אלוף! 🎯"
@@ -49,7 +57,7 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
               : "טוב! חזור על החומר ונסה שוב 💪"}
         </div>
         <button
-          onClick={() => onComplete(earned)}
+          onClick={() => onComplete(earned, score, quiz.length, isFast)}
           style={{
             background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
             color: "#fff", border: "none", borderRadius: 16,
@@ -80,10 +88,22 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
         </div>
       </div>
 
+      {/* Bug badge */}
+      {q.type === "bug" && (
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.4)",
+          borderRadius: 99, padding: "6px 14px", marginBottom: 12,
+          fontSize: 13, fontWeight: 700, color: "#fca5a5"
+        }}>🐛 מצא את הבאג</div>
+      )}
+
       {/* Question text */}
       <div style={{
-        background: "rgba(255,255,255,0.05)", borderRadius: 16, padding: 24,
-        marginBottom: 20, border: "1px solid rgba(255,255,255,0.1)",
+        background: q.type === "bug" ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.05)",
+        borderRadius: 16, padding: 24,
+        marginBottom: 20,
+        border: q.type === "bug" ? "1px solid rgba(239,68,68,0.25)" : "1px solid rgba(255,255,255,0.1)",
         fontSize: 17, color: "#f0f9ff", fontWeight: 600, lineHeight: 1.6
       }}>
         {q.q.split('\n').map((line, i) => {
@@ -103,6 +123,26 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
           );
         })}
       </div>
+
+      {/* Hints */}
+      {q.hints && !answered && (
+        <div style={{ marginBottom: 16 }}>
+          {q.hints.slice(0, hintsShown).map((hint, i) => (
+            <div key={i} style={{
+              background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.25)",
+              borderRadius: 10, padding: "10px 14px", marginBottom: 8,
+              fontSize: 13, color: "#fcd34d", lineHeight: 1.55
+            }}>💡 <strong>רמז {i + 1}:</strong> {hint}</div>
+          ))}
+          {hintsShown < q.hints.length && (
+            <button onClick={() => setHintsShown(h => h + 1)} style={{
+              background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)",
+              color: "#fbbf24", borderRadius: 10, padding: "8px 16px",
+              fontSize: 13, cursor: "pointer", fontFamily: "inherit"
+            }}>💡 רמז {hintsShown + 1}</button>
+          )}
+        </div>
+      )}
 
       {/* Options */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

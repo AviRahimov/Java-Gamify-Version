@@ -2,7 +2,7 @@ import { CHAPTERS } from "../data/chapters.js";
 import { getRank }   from "../data/ranks.js";
 import XPBar         from "./XPBar.jsx";
 
-export default function ChapterMap({ xp, completedChapters, streak, onStartChapter }) {
+export default function ChapterMap({ xp, completedChapters, streak, earnedAchievements, dailyDoneToday, onStartChapter, onOpenGlossary, onOpenDashboard, onOpenAchievements, onOpenFlashcards, onOpenDaily }) {
   const rank           = getRank(xp);
   const completedCount = Object.keys(completedChapters).length;
   const totalChapters  = CHAPTERS.length;
@@ -37,7 +37,7 @@ export default function ChapterMap({ xp, completedChapters, streak, onStartChapt
       <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: "24px 16px" }}>
 
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>☕</div>
           <h1 style={{
             fontSize: 38, fontWeight: 900, margin: 0,
@@ -47,6 +47,24 @@ export default function ChapterMap({ xp, completedChapters, streak, onStartChapt
           <p style={{ color: "#64748b", margin: "8px 0 0", fontSize: 16 }}>
             למד Java בדרך הכי מגניבה שיש ⚔️
           </p>
+        </div>
+
+        {/* Nav buttons */}
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
+          {[
+            { label: "📖 מילון",         fn: onOpenGlossary },
+            { label: "📊 התקדמות",       fn: onOpenDashboard },
+            { label: `🏆 הישגים${earnedAchievements.length > 0 ? ` (${earnedAchievements.length})` : ""}`, fn: onOpenAchievements },
+            { label: "🃏 כרטיסיות",       fn: onOpenFlashcards },
+            { label: `⚡ אתגר יומי${dailyDoneToday ? " ✓" : ""}`, fn: onOpenDaily },
+          ].map((btn, i) => (
+            <button key={i} onClick={btn.fn} style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              color: "#cbd5e1", borderRadius: 10, padding: "8px 18px",
+              fontSize: 13, cursor: "pointer", fontFamily: "inherit"
+            }}>{btn.label}</button>
+          ))}
         </div>
 
         {/* Stats */}
@@ -138,7 +156,7 @@ export default function ChapterMap({ xp, completedChapters, streak, onStartChapt
         </div>
 
         <div style={{ textAlign: "center", marginTop: 32, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Built with ☕ and ❤️
+          Java Quest • Created by Avi Rahimov ☕
         </div>
       </div>
     </div>
