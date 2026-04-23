@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { FLASHCARDS } from "../data/flashcards.js";
-import { CHAPTERS }   from "../data/chapters.js";
+
+
 
 function shuffle(arr) {
   const a = [...arr];
@@ -11,7 +11,7 @@ function shuffle(arr) {
   return a;
 }
 
-export default function FlashcardsView({ completedChapters, onClose }) {
+export default function FlashcardsView({ chapters, flashcardsData, completedChapters, onClose }) {
   const [filterChapter, setFilterChapter] = useState("all");
   const [deck,          setDeck]          = useState(null); // null = picker screen
   const [index,         setIndex]         = useState(0);
@@ -20,13 +20,13 @@ export default function FlashcardsView({ completedChapters, onClose }) {
   const [unknown,       setUnknown]       = useState([]);
   const [done,          setDone]          = useState(false);
 
-  const availableChapters = CHAPTERS.filter(
+  const availablechapters = chapters.filter(
     ch => !!completedChapters[ch.id] || ch.id === 1
   );
 
   const filteredCards = useMemo(() => {
-    if (filterChapter === "all") return FLASHCARDS;
-    return FLASHCARDS.filter(c => c.chapter === Number(filterChapter));
+    if (filterChapter === "all") return flashcardsData;
+    return flashcardsData.filter(c => c.chapter === Number(filterChapter));
   }, [filterChapter]);
 
   function startDeck() {
@@ -229,7 +229,7 @@ export default function FlashcardsView({ completedChapters, onClose }) {
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 28 }}>🃏</div>
             <div style={{ fontSize: 20, fontWeight: 800 }}>כרטיסיות חזרה</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>{FLASHCARDS.length} כרטיסיות</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{flashcardsData.length} כרטיסיות</div>
           </div>
           <div style={{ width: 80 }} />
         </div>
@@ -249,10 +249,10 @@ export default function FlashcardsView({ completedChapters, onClose }) {
                 color: filterChapter === "all" ? "#a5b4fc" : "#94a3b8",
                 borderRadius: 99, padding: "8px 16px", fontSize: 13, cursor: "pointer", fontFamily: "inherit"
               }}>
-              כל הפרקים ({FLASHCARDS.length})
+              כל הפרקים ({flashcardsData.length})
             </button>
-            {CHAPTERS.map(ch => {
-              const count = FLASHCARDS.filter(c => c.chapter === ch.id).length;
+            {chapters.map(ch => {
+              const count = flashcardsData.filter(c => c.chapter === ch.id).length;
               const sel   = filterChapter === String(ch.id);
               return (
                 <button key={ch.id} onClick={() => setFilterChapter(String(ch.id))} style={{

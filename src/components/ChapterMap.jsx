@@ -1,11 +1,11 @@
-import { CHAPTERS } from "../data/chapters.js";
+
 import { getRank }   from "../data/ranks.js";
 import XPBar         from "./XPBar.jsx";
 
-export default function ChapterMap({ xp, completedChapters, streak, earnedAchievements, dailyDoneToday, onStartChapter, onOpenGlossary, onOpenDashboard, onOpenAchievements, onOpenFlashcards, onOpenDaily }) {
+export default function ChapterMap({ course, xp, chapters, completedChapters, streak, earnedAchievements, dailyDoneToday, onStartChapter, onOpenGlossary, onOpenDashboard, onOpenAchievements, onOpenFlashcards, onOpenDaily }) {
   const rank           = getRank(xp);
   const completedCount = Object.keys(completedChapters).length;
-  const totalChapters  = CHAPTERS.length;
+  const totalchapters  = chapters.length;
 
   return (
     <div style={{
@@ -38,14 +38,16 @@ export default function ChapterMap({ xp, completedChapters, streak, earnedAchiev
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 20 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>☕</div>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>{course === "java" ? "☕" : "🐍"}</div>
           <h1 style={{
             fontSize: 38, fontWeight: 900, margin: 0,
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)",
+            background: course === "java" 
+              ? "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)"
+              : "linear-gradient(135deg, #f59e0b, #10b981, #3b82f6)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
-          }}>Java Quest</h1>
+          }}>{course === "java" ? "Java Quest" : "Python Quest"}</h1>
           <p style={{ color: "#64748b", margin: "8px 0 0", fontSize: 16 }}>
-            למד Java בדרך הכי מגניבה שיש ⚔️
+            למד {course === "java" ? "Java" : "Python"} בדרך הכי מגניבה שיש ⚔️
           </p>
         </div>
 
@@ -71,7 +73,7 @@ export default function ChapterMap({ xp, completedChapters, streak, earnedAchiev
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
           {[
             { icon: "🔥", value: streak, label: "ימי רצף",  color: "#f97316" },
-            { icon: "📖", value: `${completedCount}/${totalChapters}`, label: "פרקים", color: "#60a5fa" },
+            { icon: "📖", value: `${completedCount}/${totalchapters}`, label: "פרקים", color: "#60a5fa" },
             { icon: rank.icon, value: rank.name, label: "דרגה", color: rank.color, small: true }
           ].map((s, i) => (
             <div key={i} style={{
@@ -92,9 +94,9 @@ export default function ChapterMap({ xp, completedChapters, streak, earnedAchiev
 
         {/* Chapter Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
-          {CHAPTERS.map((ch, idx) => {
+          {chapters.map((ch, idx) => {
             const isCompleted = !!completedChapters[ch.id];
-            const isLocked    = idx > 0 && !completedChapters[CHAPTERS[idx - 1].id];
+            const isLocked    = idx > 0 && !completedChapters[chapters[idx - 1].id];
             const isNext      = !isLocked && !isCompleted;
 
             return (
@@ -148,7 +150,7 @@ export default function ChapterMap({ xp, completedChapters, streak, earnedAchiev
                 </div>
 
                 <div style={{ marginTop: 12, fontSize: 12, color: "#475569" }}>
-                  {ch.lessons.length} שיעורים • {ch.quiz.length} שאלות
+                  {ch.lessons?.length || 0} שיעורים • {Array.isArray(ch.quiz) ? ch.quiz.length : 1} שאלות
                 </div>
               </div>
             );

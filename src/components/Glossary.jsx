@@ -1,4 +1,4 @@
-const GLOSSARY = [
+const JAVA_GLOSSARY = [
   // A
   { term: "Abstract Class", category: "OOP", def: "מחלקה שלא ניתן ליצור ממנה instance. משמשת כ-blueprint. מוגדרת עם מילת המפתח abstract." },
   { term: "Array", category: "Data Structures", def: "מבנה נתונים בגודל קבוע שמאחסן פריטים מאותו type. הגישה היא לפי אינדקס שמתחיל ב-0." },
@@ -66,7 +66,36 @@ const GLOSSARY = [
   { term: "while", category: "Control Flow", def: "לולאה שרצה כל עוד התנאי הוא true. בודקת את התנאי לפני כל איטרציה." },
 ];
 
-const CATEGORIES = [...new Set(GLOSSARY.map(g => g.category))].sort();
+const PYTHON_GLOSSARY = [
+  // A
+  { term: "append()", category: "Data Structures", def: "מתודה שמוסיפה איבר חדש לסוף רשימה (List)." },
+  { term: "argument", category: "Functions", def: "ערך שמועבר לפונקציה בעת הקריאה אליה." },
+  // B
+  { term: "break", category: "Control Flow", def: "קוטע את הלולאה הנוכחית (for או while) באופן מיידי למרות שהתנאי עדיין עשוי להתקיים." },
+  // C
+  { term: "class", category: "OOP", def: "תבנית המשמשת ליצירת אובייקטים, מכילה פונקציות ומשתנים (attributes)." },
+  { term: "continue", category: "Control Flow", def: "מדלג על שאר האיטרציה הנוכחית בלולאה ועובר לאיטרציה הבאה." },
+  // D
+  { term: "def", category: "Functions", def: "מילת המפתח המשמשת להגדרת פונקציה חדשה בפייתון." },
+  { term: "dictionary (dict)", category: "Data Structures", def: "מבנה נתונים שממפה מפתחות (keys) לערכים (values), מסומן ב-{}." },
+  // E
+  { term: "elif", category: "Control Flow", def: "קיצור של else if, בודק תנאי נוסף אם הראשון לא מתקיים." },
+  // F
+  { term: "for", category: "Control Flow", def: "לולאה שעוברת על איברים של רצף (כגון רשימה, מחרוזת או טווח)." },
+  { term: "function", category: "Functions", def: "בלוק של קוד לשימוש חוזר אשר רץ רק כאשר קוראים לו." },
+  // I
+  { term: "if", category: "Control Flow", def: "הצהרת תנאי שמריצה את בלוק הקוד שלה רק אם התנאי הוא אמת." },
+  { term: "import", category: "Core Concepts", def: "מילת מפתח המשמשת להכנסת מודול רשמי או קוד חיצוני לקובץ הנוכחי." },
+  { term: "indentation", category: "Syntax", def: "הזחה של קוד, אשר בפייתון מגדירה את בלוקי הקוד (למשל, תוכן של לולאות או פונקציות)." },
+  // L
+  { term: "list", category: "Data Structures", def: "אוסף מסודר (ordered) שניתן לשנות (mutable), המסומן בסוגריים מרובעים []." },
+  // P
+  { term: "print()", category: "Core Concepts", def: "הפונקציה הבסיסית בפייתון המדפיסה פלט למסך." },
+  // T
+  { term: "tuple", category: "Data Structures", def: "אוסף מסודר (ordered) שאי אפשר לשנות (immutable), המסומן בסוגריים עגולים ()." },
+  { term: "type()", category: "Core Concepts", def: "פונקציה המחזירה מהו סוג הנתונים (int, str, list וכו') של אובייקט כלשהו." },
+];
+
 import { useState } from "react";
 
 const CATEGORY_COLORS = {
@@ -77,13 +106,18 @@ const CATEGORY_COLORS = {
   "Error Handling":"#f87171",
   "Modifiers":     "#a78bfa",
   "OOP":           "#c084fc",
+  "Syntax":        "#e879f9",
+  "Functions":     "#2dd4bf",
 };
 
-export default function Glossary({ onClose }) {
+export default function Glossary({ onClose, language = "java" }) {
   const [query,    setQuery]    = useState("");
   const [category, setCategory] = useState("הכל");
 
-  const filtered = GLOSSARY.filter(g => {
+  const activeGlossary = language === "python" ? PYTHON_GLOSSARY : JAVA_GLOSSARY;
+  const activeCategories = [...new Set(activeGlossary.map(g => g.category))].sort();
+
+  const filtered = activeGlossary.filter(g => {
     const q = query.trim().toLowerCase();
     const matchText = !q || g.term.toLowerCase().includes(q) || g.def.includes(q);
     const matchCat  = category === "הכל" || g.category === category;
@@ -109,8 +143,8 @@ export default function Glossary({ onClose }) {
           }}>← חזרה</button>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 28 }}>📖</div>
-            <div style={{ fontSize: 20, fontWeight: 800 }}>מילון Java</div>
-            <div style={{ fontSize: 12, color: "#64748b" }}>{GLOSSARY.length} מונחים</div>
+            <div style={{ fontSize: 20, fontWeight: 800 }}>מילון {language === "python" ? "Python" : "Java"}</div>
+            <div style={{ fontSize: 12, color: "#64748b" }}>{activeGlossary.length} מונחים</div>
           </div>
           <div style={{ width: 80 }} />
         </div>
@@ -133,7 +167,7 @@ export default function Glossary({ onClose }) {
 
         {/* Category filter */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
-          {["הכל", ...CATEGORIES].map(cat => (
+          {["הכל", ...activeCategories].map(cat => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
@@ -179,7 +213,7 @@ export default function Glossary({ onClose }) {
         )}
 
         <div style={{ textAlign: "center", marginTop: 32, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Built with ☕ and ❤️
+          {language === "python" ? "Python" : "Java"} Quest • Built with ☕ and ❤️
         </div>
       </div>
     </div>

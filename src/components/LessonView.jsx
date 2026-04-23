@@ -1,6 +1,6 @@
 import CodeBlock from "./CodeBlock.jsx";
 
-export default function LessonView({ chapter, lessonIndex, onNext, onBackToMap }) {
+export default function LessonView({ chapter, language="java", lessonIndex, onNext, onBackToMap }) {
   const lesson      = chapter.lessons[lessonIndex];
   const totalLessons = chapter.lessons.length;
   const isLast      = lessonIndex + 1 >= totalLessons;
@@ -61,7 +61,7 @@ export default function LessonView({ chapter, lessonIndex, onNext, onBackToMap }
 
         {/* Code block – isolated LTR */}
         <div style={{ direction: "ltr", unicodeBidi: "isolate" }}>
-          <CodeBlock code={lesson.code} />
+          <CodeBlock code={lesson.code} language={language} />
         </div>
 
         {/* Fun fact */}

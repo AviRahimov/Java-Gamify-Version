@@ -9,17 +9,24 @@ import Dashboard        from "./components/Dashboard.jsx";
 import AchievementsView from "./components/AchievementsView.jsx";
 import FlashcardsView   from "./components/FlashcardsView.jsx";
 import DailyChallenge   from "./components/DailyChallenge.jsx";
-import { CHAPTERS }     from "./data/chapters.js";
+
+// Data
 import { getEarnedAchievements } from "./data/achievements.js";
+import { CHAPTERS as JAVA_CHAPTERS } from "./data/java/chapters.js";
+import { FLASHCARDS as JAVA_FLASHCARDS } from "./data/java/flashcards.js";
+import { CHALLENGES as JAVA_CHALLENGES } from "./data/java/challenges.js";
+import { CHAPTERS as PYTHON_CHAPTERS } from "./data/python/chapters.js";
+import { FLASHCARDS as PYTHON_FLASHCARDS } from "./data/python/flashcards.js";
+import { CHALLENGES as PYTHON_CHALLENGES } from "./data/python/challenges.js";
 
 // ── helpers ────────────────────────────────────────────────────────────────
 function loadJSON(key, fallback) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
   catch { return fallback; }
 }
-function loadStreak() {
+function loadStreak(course) {
   try {
-    const raw = localStorage.getItem("jq_streak");
+    const raw = localStorage.getItem(`jq_${course}_streak`);
     if (!raw) return 0;
     const { count, lastDate } = JSON.parse(raw);
     const today     = new Date().toDateString();
@@ -30,26 +37,56 @@ function loadStreak() {
 }
 
 export default function App() {
-  const [xp,                setXP]                = useState(() => loadJSON("jq_xp", 0));
-  const [completedChapters, setCompletedChapters] = useState(() => loadJSON("jq_completed", {}));
-  const [quizScores,        setQuizScores]        = useState(() => loadJSON("jq_scores", {}));
-  const [fastQuiz,          setFastQuiz]          = useState(() => loadJSON("jq_fast", false));
-  const [streak,            setStreak]            = useState(loadStreak);
+  const [course, setCourse] = useState(() => loadJSON("jq_selected_course", "java"));
+
+  const [xp,                setXP]                = useState(() => loadJSON(`jq_${course}_xp`, 0));
+  const [completedChapters, setCompletedChapters] = useState(() => loadJSON(`jq_${course}_completed`, {}));
+  const [quizScores,        setQuizScores]        = useState(() => loadJSON(`jq_${course}_scores`, {}));
+  const [fastQuiz,          setFastQuiz]          = useState(() => loadJSON(`jq_${course}_fast`, false));
+  const [streak,            setStreak]            = useState(() => loadStreak(course));
+  
   const [selectedChapter,   setSelectedChapter]   = useState(null);
-  const [view,              setView]              = useState("map"); // map|lesson|summary|meme|quiz|glossary|dashboard|achievements|flashcards|daily
+  const [view,              setView]              = useState("map"); // map|lesson|summary|meme|quiz|glossary|dashboard|achievements|flashcards|daily|courseSelect
   const [currentLesson,     setCurrentLesson]     = useState(0);
   const [showXPGain,        setShowXPGain]        = useState(null);
   const [newAchievements,   setNewAchievements]   = useState([]);
   const [dailyDoneToday,    setDailyDoneToday]    = useState(() => {
-    const saved = localStorage.getItem("jq_daily");
+    const saved = localStorage.getItem(`jq_${course}_daily`);
     return saved === new Date().toDateString();
   });
 
+  const CHAPTERS = course === "java" ? JAVA_CHAPTERS : PYTHON_CHAPTERS;
+  const FLASHCARDS = course === "java" ? JAVA_FLASHCARDS : PYTHON_FLASHCARDS;
+  const CHALLENGES = course === "java" ? JAVA_CHALLENGES : PYTHON_CHALLENGES;
+
+  // Change course
+  const switchCourse = (newCourse) => {
+    setCourse(newCourse);
+    localStorage.setItem("jq_selected_course", JSON.stringify(newCourse));
+    // Reset states for new course
+    setXP(loadJSON(`jq_${newCourse}_xp`, 0));
+    setCompletedChapters(loadJSON(`jq_${newCourse}_completed`, {}));
+    setQuizScores(loadJSON(`jq_${newCourse}_scores`, {}));
+    setFastQuiz(loadJSON(`jq_${newCourse}_fast`, false));
+    setStreak(loadStreak(newCourse));
+    setDailyDoneToday(() => {
+      const saved = localStorage.getItem(`jq_${newCourse}_daily`);
+      return saved === new Date().toDateString();
+    });
+    setSelectedChapter(null);
+    setView("map");
+  };
+
   // ── persist ──────────────────────────────────────────────────────────────
-  useEffect(() => { localStorage.setItem("jq_xp",       JSON.stringify(xp));               }, [xp]);
-  useEffect(() => { localStorage.setItem("jq_completed", JSON.stringify(completedChapters)); }, [completedChapters]);
-  useEffect(() => { localStorage.setItem("jq_scores",   JSON.stringify(quizScores));        }, [quizScores]);
-  useEffect(() => { localStorage.setItem("jq_fast",     JSON.stringify(fastQuiz));          }, [fastQuiz]);
+  useEffect(() => { localStorage.setItem(`jq_${course}_xp`,       JSON.stringify(xp));               }, [xp, course]);
+  useEffect(() => { localStorage.setItem(`jq_${course}_completed`, JSON.stringify(completedChapters)); }, [completedChapters, course]);
+  useEffect(() => { localStorage.setItem(`jq_${course}_scores`,   JSON.stringify(quizScores));        }, [quizScores, course]);
+  useEffect(() => { localStorage.setItem(`jq_${course}_fast`,     JSON.stringify(fastQuiz));          }, [fastQuiz, course]);
+
+  // Update Dynamic Document Title
+  useEffect(() => {
+    document.title = course === "java" ? "Java Quest" : "Python Quest";
+  }, [course]);
 
   // ── achievement checker ───────────────────────────────────────────────────
   function checkNewAchievements(newStats) {
@@ -93,7 +130,7 @@ export default function App() {
 
     // Update streak
     const today     = new Date().toDateString();
-    const savedStreak = localStorage.getItem("jq_streak");
+    const savedStreak = localStorage.getItem(`jq_${course}_streak`);
     let newCount = 1;
     try {
       if (savedStreak) {
@@ -103,7 +140,7 @@ export default function App() {
         else if (lastDate === yesterday) newCount = count + 1;
       }
     } catch { /* ignore */ }
-    localStorage.setItem("jq_streak", JSON.stringify({ count: newCount, lastDate: today }));
+    localStorage.setItem(`jq_${course}_streak`, JSON.stringify({ count: newCount, lastDate: today }));
     setStreak(newCount);
 
     checkNewAchievements({
@@ -126,7 +163,7 @@ export default function App() {
   function completeDailyChallenge(earned, correct) {
     if (correct && earned > 0) addXP(earned);
     const today = new Date().toDateString();
-    localStorage.setItem("jq_daily", today);
+    localStorage.setItem(`jq_${course}_daily`, today);
     setDailyDoneToday(true);
     setView("map");
   }
@@ -137,6 +174,54 @@ export default function App() {
 
   return (
     <>
+      {/* Course Selection Modal */}
+      {view === "courseSelect" && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(15,23,42,0.9)", zIndex: 2000,
+          display: "flex", alignItems: "center", justifyContent: "center"
+        }}>
+          <div style={{
+            background: "#1e293b", padding: "2rem", borderRadius: "1rem",
+            textAlign: "center", border: "2px solid #3b82f6", minWidth: 300
+          }}>
+            <h2 style={{ fontSize: "1.5rem", color: "#f8fafc", marginBottom: "1.5rem" }}>
+              בחר מסלול למידה
+            </h2>
+            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+              <button 
+                onClick={() => switchCourse("java")}
+                style={{
+                  background: course === "java" ? "#3b82f6" : "#334155", color: "#fff",
+                  padding: "1rem 2rem", borderRadius: "0.5rem", border: "none",
+                  cursor: "pointer", fontSize: "1.2rem", fontWeight: "bold"
+               }}>
+                ☕ Java
+              </button>
+              <button 
+                onClick={() => switchCourse("python")}
+                style={{
+                  background: course === "python" ? "#3b82f6" : "#334155", color: "#fff",
+                  padding: "1rem 2rem", borderRadius: "0.5rem", border: "none",
+                  cursor: "pointer", fontSize: "1.2rem", fontWeight: "bold"
+                }}>
+                🐍 Python
+              </button>
+            </div>
+            {course && (
+            <button 
+              onClick={() => setView("map")}
+              style={{
+                marginTop: "2rem", background: "transparent", color: "#94a3b8",
+                border: "none", cursor: "pointer", fontSize: "1rem"
+              }}>
+              ביטול
+            </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* XP Toast */}
       {showXPGain && (
         <div style={{
@@ -172,11 +257,45 @@ export default function App() {
           80%  { opacity:1; transform:translateX(-50%) translateY(-10px);  }
           100% { opacity:0; transform:translateX(-50%) translateY(-30px);  }
         }
+        
+        .change-course-btn {
+          position: fixed;
+          top: 1rem;
+          right: 1rem;
+          background: linear-gradient(135deg, #ef4444, #f97316);
+          border: 2px solid #fbbf24;
+          color: #fff;
+          padding: 0.6rem 1.2rem;
+          border-radius: 9999px;
+          cursor: pointer;
+          font-weight: 800;
+          font-size: 1rem;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .change-course-btn:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
+        }
       `}</style>
+      
+      {view !== "courseSelect" && (
+        <button 
+          className="change-course-btn" 
+          onClick={() => setView("courseSelect")}>
+          {course === "java" ? "☕ Java" : "🐍 Python"} - שנה מסלול
+        </button>
+      )}
 
       {view === "map" && (
         <ChapterMap
+          course={course}
           xp={xp}
+          chapters={CHAPTERS}
           completedChapters={completedChapters}
           streak={streak}
           earnedAchievements={earnedAchievements}
@@ -193,6 +312,7 @@ export default function App() {
       {view === "lesson" && selectedChapter && (
         <LessonView
           chapter={selectedChapter}
+          language={course}
           lessonIndex={currentLesson}
           onNext={nextLesson}
           onBackToMap={backToMap}
@@ -222,7 +342,7 @@ export default function App() {
       )}
 
       {view === "glossary" && (
-        <Glossary onClose={backToMap} />
+        <Glossary onClose={backToMap} language={course} />
       )}
 
       {view === "dashboard" && (
@@ -231,6 +351,7 @@ export default function App() {
           completedChapters={completedChapters}
           quizScores={quizScores}
           streak={streak}
+          courseName={course === "java" ? "Java" : "Python"} chapters={CHAPTERS}
           onClose={backToMap}
         />
       )}
@@ -244,6 +365,7 @@ export default function App() {
 
       {view === "flashcards" && (
         <FlashcardsView
+          flashcardsData={FLASHCARDS} chapters={CHAPTERS}
           completedChapters={completedChapters}
           onClose={backToMap}
         />
@@ -251,6 +373,7 @@ export default function App() {
 
       {view === "daily" && (
         <DailyChallenge
+          challengesData={CHALLENGES}
           alreadyDoneToday={dailyDoneToday}
           onComplete={completeDailyChallenge}
           onClose={backToMap}

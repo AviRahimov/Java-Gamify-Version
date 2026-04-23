@@ -1,10 +1,10 @@
-import { CHAPTERS } from "../data/chapters.js";
+
 import { getRank }  from "../data/ranks.js";
 
-export default function Dashboard({ xp, completedChapters, quizScores, streak, onClose }) {
+export default function Dashboard({ xp, chapters, completedChapters, quizScores, streak, courseName, onClose }) {
   const rank           = getRank(xp);
   const completedCount = Object.keys(completedChapters).length;
-  const totalChapters  = CHAPTERS.length;
+  const totalchapters  = chapters.length;
   const scores         = Object.values(quizScores);
   const avgScore       = scores.length
     ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
@@ -48,7 +48,7 @@ export default function Dashboard({ xp, completedChapters, quizScores, streak, o
           {[
             { icon: "⭐", value: xp,                        label: "XP", color: "#fbbf24" },
             { icon: "🔥", value: streak,                    label: "ימי רצף", color: "#f97316" },
-            { icon: "📖", value: `${completedCount}/${totalChapters}`, label: "פרקים", color: "#60a5fa" },
+            { icon: "📖", value: `${completedCount}/${totalchapters}`, label: "פרקים", color: "#60a5fa" },
             { icon: rank.icon, value: rank.name,            label: "דרגה", color: rank.color, small: true },
           ].map((s, i) => (
             <div key={i} style={{
@@ -72,14 +72,14 @@ export default function Dashboard({ xp, completedChapters, quizScores, streak, o
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
             <span style={{ fontWeight: 700, fontSize: 15 }}>התקדמות כוללת</span>
             <span style={{ color: "#6366f1", fontWeight: 700 }}>
-              {Math.round((completedCount / totalChapters) * 100)}%
+              {Math.round((completedCount / totalchapters) * 100)}%
             </span>
           </div>
           <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, height: 10, overflow: "hidden" }}>
             <div style={{
               height: "100%", borderRadius: 99,
               background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
-              width: `${Math.round((completedCount / totalChapters) * 100)}%`,
+              width: `${Math.round((completedCount / totalchapters) * 100)}%`,
               transition: "width 0.8s cubic-bezier(0.34,1.56,0.64,1)",
               boxShadow: "0 0 12px #6366f188"
             }} />
@@ -120,7 +120,7 @@ export default function Dashboard({ xp, completedChapters, quizScores, streak, o
             borderBottom: "1px solid rgba(255,255,255,0.08)",
             fontWeight: 700, fontSize: 15
           }}>ציוני חידון לפי פרק</div>
-          {CHAPTERS.map(ch => {
+          {chapters.map(ch => {
             const score     = quizScores[ch.id] ?? null;
             const completed = !!completedChapters[ch.id];
             const pct       = score ?? 0;

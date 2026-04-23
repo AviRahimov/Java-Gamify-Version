@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { getTodaysChallenge } from "../data/challenges.js";
 
-export default function DailyChallenge({ onComplete, onClose, alreadyDoneToday }) {
-  const challenge = getTodaysChallenge();
+
+export default function DailyChallenge({ challengesData, onComplete, onClose, alreadyDoneToday }) {
+  const challenge = challengesData[Math.floor(Date.now() / 86400000) % challengesData.length];
   const [selected,  setSelected]  = useState(null);
   const [answered,  setAnswered]  = useState(false);
 
