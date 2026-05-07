@@ -74,11 +74,20 @@ export const ACHIEVEMENTS = [
   {
     id: "graduated",
     icon: "🎓",
-    name: "בוגר Java",
+    name: "בוגר המסלול",
     desc: "סיים את כל הפרקים",
     color: "#c084fc",
     check: ({ completedChapters, totalChapters }) =>
       totalChapters > 0 && Object.keys(completedChapters).length >= totalChapters,
+  },
+  {
+    id: "graduated_python",
+    icon: "🐍",
+    name: "בוגר Python",
+    desc: "סיים את כל פרקי Python",
+    color: "#34d399",
+    check: ({ completedChapters, totalChapters, course }) =>
+      course === "python" && totalChapters > 0 && Object.keys(completedChapters).length >= totalChapters,
   },
 ];
 

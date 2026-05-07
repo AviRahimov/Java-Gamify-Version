@@ -1,7 +1,7 @@
 
 import { getRank }  from "../data/ranks.js";
 
-export default function Dashboard({ xp, chapters, completedChapters, quizScores, streak, courseName, onClose }) {
+export default function Dashboard({ xp, chapters, completedChapters, quizScores, streak, courseName = "Java", onClose }) {
   const rank           = getRank(xp);
   const completedCount = Object.keys(completedChapters).length;
   const totalchapters  = chapters.length;
@@ -156,7 +156,7 @@ export default function Dashboard({ xp, chapters, completedChapters, quizScores,
         </div>
 
         <div style={{ textAlign: "center", marginTop: 16, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Built with ☕ and ❤️
+          {courseName} Quest • Built with ☕ and ❤️
         </div>
       </div>
     </div>

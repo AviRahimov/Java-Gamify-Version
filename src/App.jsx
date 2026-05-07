@@ -91,11 +91,11 @@ export default function App() {
   // ── achievement checker ───────────────────────────────────────────────────
   function checkNewAchievements(newStats) {
     const prevEarned = getEarnedAchievements({
-      xp, completedChapters, quizScores, streak, fastQuiz,
+      xp, completedChapters, quizScores, streak, fastQuiz, course,
       totalChapters: CHAPTERS.length
     }).map(a => a.id);
     const nowEarned = getEarnedAchievements({
-      ...newStats, totalChapters: CHAPTERS.length
+      ...newStats, course, totalChapters: CHAPTERS.length
     }).map(a => a.id);
     const fresh = nowEarned.filter(id => !prevEarned.includes(id));
     if (fresh.length > 0) setNewAchievements(fresh);
@@ -169,7 +169,7 @@ export default function App() {
   }
 
   const earnedAchievements = getEarnedAchievements({
-    xp, completedChapters, quizScores, streak, fastQuiz, totalChapters: CHAPTERS.length
+    xp, completedChapters, quizScores, streak, fastQuiz, course, totalChapters: CHAPTERS.length
   });
 
   return (
@@ -338,6 +338,7 @@ export default function App() {
           chapter={selectedChapter}
           onComplete={completeQuiz}
           onBackToMap={backToMap}
+          courseName={course === "java" ? "Java" : "Python"}
         />
       )}
 
@@ -359,6 +360,8 @@ export default function App() {
       {view === "achievements" && (
         <AchievementsView
           earnedIds={earnedAchievements.map(a => a.id)}
+          courseName={course === "java" ? "Java" : "Python"}
+          course={course}
           onClose={backToMap}
         />
       )}
@@ -367,6 +370,7 @@ export default function App() {
         <FlashcardsView
           flashcardsData={FLASHCARDS} chapters={CHAPTERS}
           completedChapters={completedChapters}
+          courseName={course === "java" ? "Java" : "Python"}
           onClose={backToMap}
         />
       )}

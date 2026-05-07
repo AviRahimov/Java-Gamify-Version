@@ -1,6 +1,6 @@
 import QuizView from "./QuizView.jsx";
 
-export default function QuizPage({ chapter, onComplete, onBackToMap }) {
+export default function QuizPage({ chapter, onComplete, onBackToMap, courseName = "Java" }) {
   return (
     <div style={{
       minHeight: "100vh", background: "#020617",
@@ -28,6 +28,8 @@ export default function QuizPage({ chapter, onComplete, onBackToMap }) {
           quiz={chapter.quiz}
           onComplete={onComplete}
           chapterXP={chapter.xpReward}
+          onBackToMap={onBackToMap}
+          courseName={courseName}
         />
       </div>
     </div>

@@ -11,7 +11,7 @@ function shuffle(arr) {
   return a;
 }
 
-export default function FlashcardsView({ chapters, flashcardsData, completedChapters, onClose }) {
+export default function FlashcardsView({ chapters, flashcardsData, completedChapters, courseName = "Java", onClose }) {
   const [filterChapter, setFilterChapter] = useState("all");
   const [deck,          setDeck]          = useState(null); // null = picker screen
   const [index,         setIndex]         = useState(0);
@@ -291,7 +291,7 @@ export default function FlashcardsView({ chapters, flashcardsData, completedChap
         </button>
 
         <div style={{ textAlign: "center", marginTop: 32, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Built with ☕ and ❤️
+          {courseName} Quest • Built with ☕ and ❤️
         </div>
       </div>
     </div>

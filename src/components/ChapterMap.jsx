@@ -158,7 +158,7 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
         </div>
 
         <div style={{ textAlign: "center", marginTop: 32, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Created by Avi Rahimov ☕
+          {course === "java" ? "Java Quest • Created by Avi Rahimov ☕" : "Python Quest • Created by Avi Rahimov 🐍"}
         </div>
       </div>
     </div>

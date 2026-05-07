@@ -1,6 +1,6 @@
 import { ACHIEVEMENTS } from "../data/achievements.js";
 
-export default function AchievementsView({ earnedIds, onClose }) {
+export default function AchievementsView({ earnedIds, courseName = "Java", course = "java", onClose }) {
   return (
     <div style={{
       minHeight: "100vh", background: "#020617",
@@ -79,7 +79,7 @@ export default function AchievementsView({ earnedIds, onClose }) {
         </div>
 
         <div style={{ textAlign: "center", marginTop: 32, color: "#1e293b", fontSize: 13 }}>
-          Java Quest • Built with ☕ and ❤️
+          {courseName} Quest • Built with ☕ and ❤️
         </div>
       </div>
     </div>

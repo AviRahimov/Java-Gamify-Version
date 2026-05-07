@@ -1,6 +1,31 @@
 import { useState, useRef } from "react";
 
-export default function QuizView({ quiz, onComplete, chapterXP }) {
+function normalizeQuiz(rawQuiz) {
+  if (!Array.isArray(rawQuiz)) return [];
+
+  return rawQuiz
+    .filter(Boolean)
+    .map((item, index) => {
+      const options = Array.isArray(item.options) && item.options.length > 0
+        ? item.options
+        : ["אין תשובות זמינות לשאלה הזאת"];
+      const rawAnswer = Number(item.answer ?? item.correct ?? item.correctAnswer ?? 0);
+      const answer = Number.isInteger(rawAnswer)
+        ? Math.max(0, Math.min(rawAnswer, options.length - 1))
+        : 0;
+
+      return {
+        ...item,
+        q: item.q ?? item.question ?? `שאלה ${index + 1}`,
+        options,
+        answer,
+        explanation: item.explanation ?? "אין הסבר זמין כרגע."
+      };
+    });
+}
+
+export default function QuizView({ quiz, onComplete, chapterXP, onBackToMap, courseName = "Java" }) {
+  const safeQuiz = normalizeQuiz(quiz);
   const [current,         setCurrent]         = useState(0);
   const [selected,        setSelected]        = useState(null);
   const [answered,        setAnswered]        = useState(false);
@@ -10,16 +35,42 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
   const [hintsShown,      setHintsShown]      = useState(0);
   const startTimeRef = useRef(Date.now());
 
+  if (safeQuiz.length === 0) {
+    return (
+      <div style={{ textAlign: "center", padding: "30px 16px" }}>
+        <div style={{ fontSize: 52, marginBottom: 8 }}>⚠️</div>
+        <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>החידון לא זמין כרגע</div>
+        <div style={{ color: "#94a3b8", marginBottom: 18 }}>נראה שחסרים נתוני שאלות לפרק הזה.</div>
+        {onBackToMap && (
+          <button
+            onClick={onBackToMap}
+            style={{
+              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+              color: "#fff",
+              border: "none",
+              borderRadius: 12,
+              padding: "12px 24px",
+              fontWeight: 700,
+              cursor: "pointer"
+            }}
+          >
+            חזרה למפה
+          </button>
+        )}
+      </div>
+    );
+  }
+
   function handleSelect(idx) {
     if (answered) return;
     setSelected(idx);
     setAnswered(true);
     setShowExplanation(true);
-    if (idx === quiz[current].answer) setScore(s => s + 1);
+    if (idx === safeQuiz[current].answer) setScore(s => s + 1);
   }
 
   function handleNext() {
-    if (current + 1 >= quiz.length) {
+    if (current + 1 >= safeQuiz.length) {
       setFinished(true);
     } else {
       setCurrent(c => c + 1);
@@ -32,7 +83,7 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
 
   // ── Results screen ──────────────────────────────────────────────────────
   if (finished) {
-    const pct       = Math.round((score / quiz.length) * 100);
+    const pct       = Math.round((score / safeQuiz.length) * 100);
     const earned    = Math.round(chapterXP * (pct / 100));
     const timeSecs  = Math.round((Date.now() - startTimeRef.current) / 1000);
     const isFast    = timeSecs < 60;
@@ -41,7 +92,7 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
       <div style={{ textAlign: "center", padding: "40px 20px" }}>
         <div style={{ fontSize: 72, marginBottom: 16 }}>{emoji}</div>
         <div style={{ fontSize: 32, fontWeight: 900, color: "#f0f9ff", marginBottom: 8 }}>
-          {score}/{quiz.length} נכון!
+          {score}/{safeQuiz.length} נכון!
         </div>
         <div style={{ fontSize: 48, fontWeight: 900, color: "#fbbf24", marginBottom: 8, textShadow: "0 0 30px #fbbf2488" }}>
           +{earned} XP
@@ -51,13 +102,13 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
         )}
         <div style={{ color: "#94a3b8", marginBottom: 32 }}>
           {pct === 100
-            ? "מושלם! אתה Java אלוף! 🎯"
+            ? `מושלם! אתה ${courseName} אלוף! 🎯`
             : pct >= 70
               ? "כל הכבוד! כמעט מושלם 🌟"
               : "טוב! חזור על החומר ונסה שוב 💪"}
         </div>
         <button
-          onClick={() => onComplete(earned, score, quiz.length, isFast)}
+          onClick={() => onComplete(earned, score, safeQuiz.length, isFast)}
           style={{
             background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
             color: "#fff", border: "none", borderRadius: 16,
@@ -72,14 +123,14 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
   }
 
   // ── Question screen ─────────────────────────────────────────────────────
-  const q = quiz[current];
+  const q = safeQuiz[current];
   return (
     <div style={{ maxWidth: 620, margin: "0 auto" }}>
       {/* Progress */}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, alignItems: "center" }}>
-        <div style={{ color: "#94a3b8", fontSize: 14 }}>שאלה {current + 1} מתוך {quiz.length}</div>
+        <div style={{ color: "#94a3b8", fontSize: 14 }}>שאלה {current + 1} מתוך {safeQuiz.length}</div>
         <div style={{ display: "flex", gap: 6 }}>
-          {quiz.map((_, i) => (
+          {safeQuiz.map((_, i) => (
             <div key={i} style={{
               width: 10, height: 10, borderRadius: "50%",
               background: i < current ? "#22c55e" : i === current ? "#6366f1" : "rgba(255,255,255,0.1)"
@@ -199,7 +250,7 @@ export default function QuizView({ quiz, onComplete, chapterXP }) {
           color: "#fff", border: "none", borderRadius: 12,
           padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer"
         }}>
-          {current + 1 >= quiz.length ? "סיים את החידון! 🎉" : "שאלה הבאה ➜"}
+          {current + 1 >= safeQuiz.length ? "סיים את החידון! 🎉" : "שאלה הבאה ➜"}
         </button>
       )}
     </div>
