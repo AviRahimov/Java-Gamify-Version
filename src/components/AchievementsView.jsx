@@ -6,6 +6,22 @@ export default function AchievementsView({ earnedIds, courseName = "Java", cours
       minHeight: "100vh", background: "#020617",
       fontFamily: "'Segoe UI',Arial,sans-serif", color: "#f0f9ff", direction: "rtl"
     }}>
+      <style>{`
+        @keyframes badgeGlow {
+          0%, 100% { box-shadow: 0 0 8px  var(--badge-color, #fbbf24); }
+          50%       { box-shadow: 0 0 20px var(--badge-color, #fbbf24), 0 0 40px var(--badge-color, #fbbf24); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        .earned-badge {
+          animation: badgeGlow 2.5s ease-in-out infinite;
+        }
+        @media (max-width: 480px) {
+          .badge-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+      `}</style>
       <div style={{
         position: "fixed", inset: 0, zIndex: 0,
         background: "radial-gradient(ellipse at 50% 10%, rgba(251,191,36,0.12) 0%, transparent 60%)"
@@ -29,7 +45,14 @@ export default function AchievementsView({ earnedIds, courseName = "Java", cours
 
         {/* Progress bar */}
         <div style={{ marginBottom: 28 }}>
-          <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, height: 8, overflow: "hidden" }}>
+          <div
+            role="progressbar"
+            aria-valuenow={Math.round((earnedIds.length / ACHIEVEMENTS.length) * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`הישגים: ${earnedIds.length} מתוך ${ACHIEVEMENTS.length}`}
+            style={{ background: "rgba(255,255,255,0.1)", borderRadius: 99, height: 8, overflow: "hidden" }}
+          >
             <div style={{
               height: "100%", borderRadius: 99,
               background: "linear-gradient(90deg, #fbbf24, #f59e0b)",
@@ -44,22 +67,29 @@ export default function AchievementsView({ earnedIds, courseName = "Java", cours
         </div>
 
         {/* Badge grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
+        <div className="badge-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
           {ACHIEVEMENTS.map(a => {
             const earned = earnedIds.includes(a.id);
             return (
-              <div key={a.id} style={{
-                background: earned
-                  ? `linear-gradient(135deg, ${a.color}22, ${a.color}0a)`
-                  : "rgba(255,255,255,0.03)",
-                border: earned
-                  ? `1px solid ${a.color}66`
-                  : "1px solid rgba(255,255,255,0.07)",
-                borderRadius: 14, padding: "18px 16px",
-                textAlign: "center", transition: "all 0.2s",
-                opacity: earned ? 1 : 0.45,
-                filter: earned ? "none" : "grayscale(0.8)"
-              }}>
+              <div
+                key={a.id}
+                className={earned ? "earned-badge" : ""}
+                role="img"
+                aria-label={`${a.name}${earned ? " – הושג" : " – טרם הושג"}: ${a.desc}`}
+                style={{
+                  "--badge-color": a.color,
+                  background: earned
+                    ? `linear-gradient(135deg, ${a.color}22, ${a.color}0a)`
+                    : "rgba(255,255,255,0.03)",
+                  border: earned
+                    ? `1px solid ${a.color}66`
+                    : "1px solid rgba(255,255,255,0.07)",
+                  borderRadius: 14, padding: "18px 16px",
+                  textAlign: "center", transition: "all 0.2s",
+                  opacity: earned ? 1 : 0.45,
+                  filter: earned ? "none" : "grayscale(0.8)"
+                }}
+              >
                 <div style={{ fontSize: 36, marginBottom: 8 }}>{a.icon}</div>
                 <div style={{
                   fontSize: 14, fontWeight: 800, marginBottom: 4,

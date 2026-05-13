@@ -201,29 +201,49 @@ export default function QuizView({ quiz, onComplete, chapterXP, onBackToMap, cou
           let bg     = "rgba(255,255,255,0.04)";
           let border = "1px solid rgba(255,255,255,0.1)";
           let color  = "#e2e8f0";
-          if (answered) {
-            if (idx === q.answer)                              { bg = "rgba(34,197,94,0.15)";  border = "1px solid #22c55e"; color = "#86efac"; }
-            else if (idx === selected && idx !== q.answer)    { bg = "rgba(239,68,68,0.15)";  border = "1px solid #ef4444"; color = "#fca5a5"; }
-          }
+          const isCorrect  = answered && idx === q.answer;
+          const isWrong    = answered && idx === selected && idx !== q.answer;
+          if (isCorrect) { bg = "rgba(34,197,94,0.15)";  border = "1px solid #22c55e"; color = "#86efac"; }
+          if (isWrong)   { bg = "rgba(239,68,68,0.15)";  border = "1px solid #ef4444"; color = "#fca5a5"; }
           return (
-            <button key={idx} onClick={() => handleSelect(idx)} style={{
-              background: bg, border, color, borderRadius: 12,
-              padding: "14px 20px", fontSize: 15, cursor: answered ? "default" : "pointer",
-              textAlign: "right", transition: "all 0.2s", fontFamily: "inherit",
-              display: "flex", alignItems: "center", gap: 12
-            }}>
+            <button
+              key={idx}
+              onClick={() => handleSelect(idx)}
+              tabIndex={answered ? -1 : 0}
+              role="radio"
+              aria-checked={selected === idx}
+              aria-label={`תשובה ${String.fromCharCode(65 + idx)}: ${opt}`}
+              onKeyDown={e => {
+                if (!answered && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  handleSelect(idx);
+                }
+              }}
+              style={{
+                background: bg, border, color, borderRadius: 12,
+                padding: "14px 20px", fontSize: 15, cursor: answered ? "default" : "pointer",
+                textAlign: "right", fontFamily: "inherit",
+                display: "flex", alignItems: "center", gap: 12,
+                transition: "background 0.25s ease, border-color 0.25s ease, transform 0.15s ease",
+                transform: isCorrect ? "scale(1.01)" : "scale(1)",
+                outline: "none"
+              }}
+              onMouseEnter={e => { if (!answered) e.currentTarget.style.background = "rgba(255,255,255,0.09)"; }}
+              onMouseLeave={e => { if (!answered) e.currentTarget.style.background = bg; }}
+              onFocus={e => { if (!answered) e.currentTarget.style.boxShadow = "0 0 0 2px #6366f1"; }}
+              onBlur={e => { e.currentTarget.style.boxShadow = "none"; }}
+            >
               <span style={{
                 minWidth: 28, height: 28, borderRadius: "50%",
                 background:
-                  answered && idx === q.answer              ? "#22c55e" :
-                  answered && idx === selected              ? "#ef4444" :
+                  isCorrect ? "#22c55e" :
+                  isWrong   ? "#ef4444" :
                   "rgba(255,255,255,0.1)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 13, fontWeight: 700, flexShrink: 0
+                fontSize: 13, fontWeight: 700, flexShrink: 0,
+                transition: "background 0.25s ease"
               }}>
-                {answered && idx === q.answer             ? "✓" :
-                 answered && idx === selected             ? "✗" :
-                 String.fromCharCode(65 + idx)}
+                {isCorrect ? "✓" : isWrong ? "✗" : String.fromCharCode(65 + idx)}
               </span>
               {opt}
             </button>

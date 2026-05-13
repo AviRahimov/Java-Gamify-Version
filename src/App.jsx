@@ -297,6 +297,7 @@ export default function App() {
           xp={xp}
           chapters={CHAPTERS}
           completedChapters={completedChapters}
+          quizScores={quizScores}
           streak={streak}
           earnedAchievements={earnedAchievements}
           dailyDoneToday={dailyDoneToday}
@@ -352,7 +353,11 @@ export default function App() {
           completedChapters={completedChapters}
           quizScores={quizScores}
           streak={streak}
-          courseName={course === "java" ? "Java" : "Python"} chapters={CHAPTERS}
+          courseName={course === "java" ? "Java" : "Python"}
+          chapters={CHAPTERS}
+          course={course}
+          javaXP={course === "java" ? xp : loadJSON("jq_java_xp", 0)}
+          pythonXP={course === "python" ? xp : loadJSON("jq_python_xp", 0)}
           onClose={backToMap}
         />
       )}

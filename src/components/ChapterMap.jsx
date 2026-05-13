@@ -2,7 +2,7 @@
 import { getRank }   from "../data/ranks.js";
 import XPBar         from "./XPBar.jsx";
 
-export default function ChapterMap({ course, xp, chapters, completedChapters, streak, earnedAchievements, dailyDoneToday, onStartChapter, onOpenGlossary, onOpenDashboard, onOpenAchievements, onOpenFlashcards, onOpenDaily }) {
+export default function ChapterMap({ course, xp, chapters, completedChapters, quizScores, streak, earnedAchievements, dailyDoneToday, onStartChapter, onOpenGlossary, onOpenDashboard, onOpenAchievements, onOpenFlashcards, onOpenDaily }) {
   const rank           = getRank(xp);
   const completedCount = Object.keys(completedChapters).length;
   const totalchapters  = chapters.length;
@@ -32,6 +32,17 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
           0%,100% { box-shadow: 0 0 0 0   rgba(99,102,241,0.4); }
           50%     { box-shadow: 0 0 0 12px rgba(99,102,241,0);   }
         }
+        @keyframes cardEntrance {
+          from { opacity: 0; transform: translateY(18px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+        @media (max-width: 480px) {
+          .chapter-grid   { grid-template-columns: 1fr !important; }
+          .stats-grid     { grid-template-columns: 1fr 1fr !important; }
+          .nav-btn        { padding: 6px 12px !important; font-size: 12px !important; }
+          .chapter-card   { padding: 16px !important; }
+          .header-title   { font-size: 28px !important; }
+        }
       `}</style>
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", padding: "24px 16px" }}>
@@ -39,9 +50,9 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 20 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>{course === "java" ? "☕" : "🐍"}</div>
-          <h1 style={{
+          <h1 className="header-title" style={{
             fontSize: 38, fontWeight: 900, margin: 0,
-            background: course === "java" 
+            background: course === "java"
               ? "linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)"
               : "linear-gradient(135deg, #f59e0b, #10b981, #3b82f6)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
@@ -54,13 +65,13 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
         {/* Nav buttons */}
         <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
           {[
-            { label: "📖 מילון",         fn: onOpenGlossary },
-            { label: "📊 התקדמות",       fn: onOpenDashboard },
-            { label: `🏆 הישגים${earnedAchievements.length > 0 ? ` (${earnedAchievements.length})` : ""}`, fn: onOpenAchievements },
-            { label: "🃏 כרטיסיות",       fn: onOpenFlashcards },
-            { label: `⚡ אתגר יומי${dailyDoneToday ? " ✓" : ""}`, fn: onOpenDaily },
+            { label: "📖 מילון",         fn: onOpenGlossary,      aria: "פתח מילון מונחים" },
+            { label: "📊 התקדמות",       fn: onOpenDashboard,     aria: "פתח לוח התקדמות" },
+            { label: `🏆 הישגים${earnedAchievements.length > 0 ? ` (${earnedAchievements.length})` : ""}`, fn: onOpenAchievements, aria: `הישגים – ${earnedAchievements.length} הושגו` },
+            { label: "🃏 כרטיסיות",       fn: onOpenFlashcards,    aria: "פתח כרטיסיות לימוד" },
+            { label: `⚡ אתגר יומי${dailyDoneToday ? " ✓" : ""}`, fn: onOpenDaily, aria: dailyDoneToday ? "אתגר יומי – הושלם היום" : "פתח אתגר יומי" },
           ].map((btn, i) => (
-            <button key={i} onClick={btn.fn} style={{
+            <button key={i} onClick={btn.fn} aria-label={btn.aria} className="nav-btn" style={{
               background: "rgba(255,255,255,0.05)",
               border: "1px solid rgba(255,255,255,0.12)",
               color: "#cbd5e1", borderRadius: 10, padding: "8px 18px",
@@ -70,7 +81,7 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
         </div>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
+        <div className="stats-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 24 }}>
           {[
             { icon: "🔥", value: streak, label: "ימי רצף",  color: "#f97316" },
             { icon: "📖", value: `${completedCount}/${totalchapters}`, label: "פרקים", color: "#60a5fa" },
@@ -81,7 +92,7 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
               border: "1px solid rgba(255,255,255,0.08)", textAlign: "center"
             }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>{s.icon}</div>
-              <div style={{ fontSize: s.small ? 13 : 20, fontWeight: 900, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: s.small ? 13 : 20, fontWeight: 900, color: s.color, wordBreak: "break-word" }}>{s.value}</div>
               <div style={{ fontSize: 12, color: "#64748b" }}>{s.label}</div>
             </div>
           ))}
@@ -93,16 +104,23 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
         </div>
 
         {/* Chapter Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+        <div className="chapter-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(260px, 100%), 1fr))", gap: 16 }}>
           {chapters.map((ch, idx) => {
             const isCompleted = !!completedChapters[ch.id];
             const isLocked    = idx > 0 && !completedChapters[chapters[idx - 1].id];
             const isNext      = !isLocked && !isCompleted;
+            const score       = quizScores?.[ch.id] ?? null;
 
             return (
               <div
                 key={ch.id}
                 onClick={() => !isLocked && onStartChapter(ch)}
+                className="chapter-card"
+                tabIndex={isLocked ? -1 : 0}
+                role="button"
+                aria-label={`${ch.title}${isCompleted ? " – הושלם" : isLocked ? " – נעול" : " – לחץ להתחיל"}`}
+                aria-disabled={isLocked}
+                onKeyDown={e => { if (!isLocked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onStartChapter(ch); } }}
                 style={{
                   background: isCompleted
                     ? "linear-gradient(135deg,rgba(34,197,94,0.1),rgba(16,185,129,0.05))"
@@ -118,11 +136,14 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
                   cursor: isLocked ? "not-allowed" : "pointer",
                   opacity: isLocked ? 0.4 : 1,
                   transition: "transform 0.2s, box-shadow 0.2s",
-                  animation: isNext ? "pulse 2s infinite" : "none",
-                  position: "relative", overflow: "hidden"
+                  animation: `cardEntrance 0.4s ease-out ${idx * 0.05}s both${isNext ? ", pulse 2s infinite" : ""}`,
+                  position: "relative", overflow: "hidden",
+                  outline: "none"
                 }}
-                onMouseEnter={e => { if (!isLocked) e.currentTarget.style.transform = "translateY(-4px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}
+                onMouseEnter={e => { if (!isLocked) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(99,102,241,0.2)"; } }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+                onFocus={e => { if (!isLocked) e.currentTarget.style.boxShadow = `0 0 0 2px ${isCompleted ? "#22c55e" : "#6366f1"}`; }}
+                onBlur={e => { e.currentTarget.style.boxShadow = "none"; }}
               >
                 {isCompleted && (
                   <div style={{
@@ -152,6 +173,18 @@ export default function ChapterMap({ course, xp, chapters, completedChapters, st
                 <div style={{ marginTop: 12, fontSize: 12, color: "#475569" }}>
                   {ch.lessons?.length || 0} שיעורים • {Array.isArray(ch.quiz) ? ch.quiz.length : 1} שאלות
                 </div>
+
+                {/* Quiz score badge for completed chapters */}
+                {isCompleted && score !== null && (
+                  <div style={{
+                    marginTop: 8, fontSize: 12, fontWeight: 700,
+                    color: score >= 90 ? "#22c55e" : score >= 70 ? "#fbbf24" : score >= 50 ? "#f97316" : "#ef4444",
+                    background: "rgba(0,0,0,0.25)", borderRadius: 8,
+                    padding: "3px 10px", display: "inline-block"
+                  }}>
+                    ציון: {score}%
+                  </div>
+                )}
               </div>
             );
           })}

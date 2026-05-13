@@ -51,9 +51,10 @@ export const ACHIEVEMENTS = [
     id: "half_way",
     icon: "🌗",
     name: "חצי הדרך",
-    desc: "סיים 4 פרקים",
+    desc: "סיים חצי מהפרקים",
     color: "#a78bfa",
-    check: ({ completedChapters }) => Object.keys(completedChapters).length >= 4,
+    check: ({ completedChapters, totalChapters }) =>
+      totalChapters > 0 && Object.keys(completedChapters).length >= Math.ceil(totalChapters / 2),
   },
   {
     id: "xp_1000",
@@ -69,7 +70,7 @@ export const ACHIEVEMENTS = [
     name: "מנסה שוב",
     desc: "השלם חידון גם אחרי תוצאה נמוכה",
     color: "#94a3b8",
-    check: ({ quizScores }) => Object.values(quizScores).some(s => s < 60 && s >= 0),
+    check: ({ quizScores }) => Object.values(quizScores).some(s => s > 0 && s < 60),
   },
   {
     id: "graduated",

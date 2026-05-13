@@ -1451,28 +1451,480 @@ public class PolymorphismDemo {
   {
     id: 9, emoji: "🧮", title: "Matrices (2D Arrays)", subtitle: "לשלוט במימדים",
     xpReward: 300, difficulty: "קשה",
-    meme: { text: "כשאתה הולך לאיבוד במערך דו-מימדי", reaction: "😵" },
+    meme: { text: "כשאתה הולך לאיבוד במערך דו-מימדי", reaction: "😵 row? column? אבוד לגמרי..." },
     lessons: [
-      { id: "9a", title: "מהי מטריצה?", content: "מטריצה מורכבת משורות ועמודות.", code: "int[][] matrix = new int[3][3];\nmatrix[0][0] = 5;", funFact: "זוהי טבלה לכל דבר ועניין!" }
+      {
+        id: "9a", title: "מהי מטריצה?",
+        content: `מטריצה (Matrix) = מערך דו-מימדי!\n\nחשבו על טבלת אקסל:\n🟦🟦🟦  ← שורה 0\n🟦🟦🟦  ← שורה 1\n🟦🟦🟦  ← שורה 2\n\nכדי לגשת לתא מסוים צריך:\n• שורה (row)   – הציר הראשון\n• עמודה (col)  – הציר השני\n\nסינטקס:\nint[][] matrix = new int[rows][cols];\nint[][] grid = {{1,2,3},{4,5,6}};`,
+        code: `public class MatrixBasics {
+    public static void main(String[] args) {
+        // Create a 3x3 matrix
+        int[][] matrix = new int[3][3];
+
+        // Fill the matrix
+        matrix[0][0] = 1;  matrix[0][1] = 2;  matrix[0][2] = 3;
+        matrix[1][0] = 4;  matrix[1][1] = 5;  matrix[1][2] = 6;
+        matrix[2][0] = 7;  matrix[2][1] = 8;  matrix[2][2] = 9;
+
+        // Access element at row 1, column 2 (value = 6)
+        System.out.println("matrix[1][2] = " + matrix[1][2]); // 6
+
+        // Shorthand initialization
+        int[][] grid = {{10, 20, 30},
+                        {40, 50, 60}};
+        System.out.println("Rows: "    + grid.length);    // 2
+        System.out.println("Columns: " + grid[0].length); // 3
+    }
+}`,
+        funFact: "🎲 שחמט, מסך המחשב ואפילו תמונות – כולם מטריצות! כל פיקסל על המסך הוא תא במטריצה ענקית."
+      },
+      {
+        id: "9b", title: "לולאות מקוננות על מטריצה",
+        content: `כדי לעבור על כל תאי המטריצה משתמשים ב-2 לולאות מקוננות:\n\n• הלולאה החיצונית עוברת על השורות\n• הלולאה הפנימית עוברת על העמודות בכל שורה\n\nסיבוכיות: O(rows × cols)\n\nדפוס:\nfor (int row = 0; row < matrix.length; row++) {\n    for (int col = 0; col < matrix[row].length; col++) {\n        // matrix[row][col]\n    }\n}`,
+        code: `public class MatrixLoop {
+    public static void main(String[] args) {
+        int[][] matrix = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        // Print all elements row by row
+        System.out.println("Matrix contents:");
+        for (int row = 0; row < matrix.length; row++) {
+            for (int col = 0; col < matrix[row].length; col++) {
+                System.out.print(matrix[row][col] + "\\t");
+            }
+            System.out.println(); // new line after each row
+        }
+
+        // Calculate sum of all elements
+        int sum = 0;
+        for (int[] row : matrix) {
+            for (int val : row) {
+                sum += val;
+            }
+        }
+        System.out.println("Sum: " + sum); // 45
+
+        // Find max element
+        int max = matrix[0][0];
+        for (int[] row : matrix) {
+            for (int val : row) {
+                if (val > max) max = val;
+            }
+        }
+        System.out.println("Max: " + max); // 9
+    }
+}`,
+        funFact: "🔄 For-each על מטריצה מחזיר int[] (שורה שלמה). לכן כותבים for (int[] row : matrix) ואז for (int val : row)."
+      },
+      {
+        id: "9c", title: "שימושים מעשיים במטריצות",
+        content: `מטריצות בעולם האמיתי:\n\n🎮 לוח משחק (שחמט, מינסוויפר, סודוקו)\n🖼️ תמונה – כל פיקסל הוא [R,G,B]\n✖️ כפולת מטריצות – בסיס ל-AI ו-Graphics\n📊 גיליון אקסל – טבלת נתונים\n\nטרנספוזיציה = להפוך שורות לעמודות:\n• שורה 0 → עמודה 0\n• שורה 1 → עמודה 1`,
+        code: `public class MatrixUses {
+    public static void main(String[] args) {
+
+        // Multiplication table
+        int[][] mulTable = new int[11][11];
+        for (int i = 1; i <= 10; i++) {
+            for (int j = 1; j <= 10; j++) {
+                mulTable[i][j] = i * j;
+            }
+        }
+        System.out.println("5 x 6 = " + mulTable[5][6]); // 30
+
+        // Simple game board (0=empty, 1=X, 2=O)
+        int[][] board = new int[3][3];
+        board[0][0] = 1; // X at top-left
+        board[1][1] = 2; // O at center
+        board[2][2] = 1; // X at bottom-right
+        System.out.println("Center: " + (board[1][1] == 2 ? "O" : "X")); // O
+
+        // Matrix transpose
+        int[][] m = {{1,2,3},{4,5,6}};  // 2x3
+        int[][] t = new int[3][2];      // 3x2
+        for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 3; j++)
+                t[j][i] = m[i][j];
+        System.out.println("t[0][1] = " + t[0][1]); // 4
+    }
+}`,
+        funFact: "🤖 רשתות עצביות (Neural Networks) עושות חישוב עם כפולת מטריצות אלפי פעמים בשנייה! המטריצות שלמדנו הן הבסיס של ה-AI המודרני."
+      }
     ],
-    quiz: { q: "איך מגיעים לאיבר הראשון בשורה השנייה בתצוגת arr?", options: ["arr[1,0]", "arr[1][0]", "arr[0][1]", "arr(1,0)"], answer: 1, explanation: "שורות תמיד מיוצגות קודם ואז העמודות!" }
+    quiz: [
+      {
+        q: "מהי ההצהרה הנכונה של מטריצה 3×4 ב-Java?",
+        options: ["int matrix = new int[3][4];", "int[][] matrix = new int[3][4];", "int[3][4] matrix;", "int matrix[][] = {3,4};"],
+        answer: 1,
+        explanation: "מערך דו-מימדי מוצהר עם int[][] ונוצר עם new int[שורות][עמודות]"
+      },
+      {
+        q: "איך ניגשים לאיבר בשורה 2, עמודה 1 (0-indexed)?",
+        options: ["matrix[1][2]", "matrix[2][1]", "matrix(2,1)", "matrix[2,1]"],
+        answer: 1,
+        explanation: "הסינטקס הוא matrix[row][col] – קודם שורה ואז עמודה: matrix[2][1]"
+      },
+      {
+        q: "כמה לולאות for נדרשות כדי לעבור על כל תאי המטריצה?",
+        options: ["1", "2", "3", "4"],
+        answer: 1,
+        explanation: "2 לולאות מקוננות: חיצונית לשורות, פנימית לעמודות"
+      },
+      {
+        q: "מה מחזיר matrix.length עבור int[][] matrix = new int[5][3]?",
+        options: ["3", "5", "15", "8"],
+        answer: 1,
+        explanation: "matrix.length = מספר השורות = 5. לאורך עמודה ניגש עם matrix[0].length = 3"
+      },
+      {
+        q: "מהי טרנספוזיציה של מטריצה?",
+        options: [
+          "מחיקת מטריצה",
+          "הפיכת שורות לעמודות ועמודות לשורות",
+          "מיון המטריצה",
+          "כפל של שתי מטריצות"
+        ],
+        answer: 1,
+        explanation: "טרנספוזיציה מחליפה שורות ועמודות: t[j][i] = m[i][j]"
+      }
+    ]
   },
   {
     id: 10, emoji: "📉", title: "Sorting Algorithms", subtitle: "לסדר את הנתונים",
     xpReward: 350, difficulty: "מומחה",
-    meme: { text: "מיון בועות מול מיון מהיר", reaction: "🏎️💨" },
+    meme: { text: "מיון בועות מול מיון מהיר", reaction: "🏎️💨 QuickSort מנצח 100-0" },
     lessons: [
-      { id: "10a", title: "מיון מהיר", content: "פעולת המיון מארגנת אלמנטים בסדר תקין כך שאפשר לחפש מהר יותר.", code: "java.util.Arrays.sort(myArray);", funFact: "BubbleSort כל כך איטי שגם צב ינצח אותו!" }
+      {
+        id: "10a", title: "מה זה מיון?",
+        content: `מיון (Sorting) = לסדר אלמנטים בסדר מסוים\n\nלמה זה חשוב?\n• חיפוש מהיר יותר אחרי מיון\n• הצגת נתונים מסודרים\n• בסיס לאלגוריתמים מתקדמים\n\nמדדי ביצועים:\n• סיבוכיות זמן: O(?) – כמה השוואות?\n• סיבוכיות מקום: O(?) – כמה זיכרון נוסף?\n\nJava מובנה:\nArrays.sort(arr); // מהיר ויעיל!`,
+        code: `import java.util.Arrays;
+
+public class SortingIntro {
+    public static void main(String[] args) {
+
+        int[] nums = {5, 2, 8, 1, 9, 3, 7, 4, 6};
+
+        System.out.println("Before: " + Arrays.toString(nums));
+        // Before: [5, 2, 8, 1, 9, 3, 7, 4, 6]
+
+        Arrays.sort(nums); // Java's built-in sort
+
+        System.out.println("After:  " + Arrays.toString(nums));
+        // After:  [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        // Sort strings alphabetically
+        String[] names = {"Zoe", "Alice", "Mike", "Bob"};
+        Arrays.sort(names);
+        System.out.println(Arrays.toString(names));
+        // [Alice, Bob, Mike, Zoe]
+
+        // Sort in reverse (need Integer[], not int[])
+        Integer[] desc = {3, 1, 4, 1, 5, 9, 2, 6};
+        Arrays.sort(desc, (a, b) -> b - a);
+        System.out.println(Arrays.toString(desc));
+        // [9, 6, 5, 4, 3, 2, 1, 1]
+    }
+}`,
+        funFact: "🔢 Java משתמש ב-Dual-Pivot Quicksort לפרימיטיביות ו-Timsort עבור Objects. Timsort הוא היברידי של Merge Sort ו-Insertion Sort – מהיר מאוד על נתונים כמעט-ממוינים!"
+      },
+      {
+        id: "10b", title: "Bubble Sort – צעד אחר צעד",
+        content: `Bubble Sort = הפשוט ביותר לכתיבה!\n\nהרעיון:\n• בכל מעבר – השוואת זוגות סמוכים\n• אם הסדר לא נכון → החלפה\n• "בועות" גדולות צפות למעלה\n\nסיבוכיות: O(N²) – איטי מאוד לנתונים גדולים\n\nדוגמה על [5,3,8,1]:\nמעבר 1: [3,5,8,1] → [3,5,1,8]\nמעבר 2: [3,1,5,8]\nמעבר 3: [1,3,5,8] ✓`,
+        code: `public class BubbleSort {
+    static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        for (int pass = 0; pass < n - 1; pass++) {
+            boolean swapped = false;
+            for (int i = 0; i < n - 1 - pass; i++) {
+                if (arr[i] > arr[i + 1]) {
+                    // Swap
+                    int temp  = arr[i];
+                    arr[i]    = arr[i + 1];
+                    arr[i+1]  = temp;
+                    swapped   = true;
+                }
+            }
+            if (!swapped) break; // already sorted!
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 1, 9, 2};
+        System.out.println("Before: " + java.util.Arrays.toString(arr));
+        // Before: [5, 3, 8, 1, 9, 2]
+
+        bubbleSort(arr);
+
+        System.out.println("After:  " + java.util.Arrays.toString(arr));
+        // After:  [1, 2, 3, 5, 8, 9]
+    }
+}`,
+        funFact: "🐌 Bubble Sort כל כך איטי שהוא שימש להרצאות מאז שנות ה-60 בתור 'מה לא לעשות'! על מיליון אלמנטים לוקח לו שנים. QuickSort לוקח שניות."
+      },
+      {
+        id: "10c", title: "Merge Sort & Quick Sort – האמיתיים",
+        content: `Merge Sort = פצל וכבוש!\n• מחלק את המערך לחצי\n• ממין כל חצי בנפרד (Recursion)\n• ממזג את שני החצאים חזרה\n• סיבוכיות: O(N log N) תמיד!\n\nQuick Sort = בחר pivot, חלק!\n• בוחר איבר ציר (pivot)\n• שם קטנים משמאל, גדולים מימין\n• ממין כל צד (Recursion)\n• ממוצע: O(N log N)`,
+        code: `public class MergeSortDemo {
+
+    static void mergeSort(int[] arr, int left, int right) {
+        if (left >= right) return;
+        int mid = (left + right) / 2;
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
+    }
+
+    static void merge(int[] arr, int left, int mid, int right) {
+        int[] temp = new int[right - left + 1];
+        int i = left, j = mid + 1, k = 0;
+        while (i <= mid && j <= right) {
+            if (arr[i] <= arr[j]) temp[k++] = arr[i++];
+            else                  temp[k++] = arr[j++];
+        }
+        while (i <= mid)   temp[k++] = arr[i++];
+        while (j <= right) temp[k++] = arr[j++];
+        for (int x = 0; x < temp.length; x++)
+            arr[left + x] = temp[x];
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {38, 27, 43, 3, 9, 82, 10};
+        mergeSort(arr, 0, arr.length - 1);
+        System.out.println(java.util.Arrays.toString(arr));
+        // [3, 9, 10, 27, 38, 43, 82]
+    }
+}`,
+        funFact: "🧩 Merge Sort הוא Stable Sort – שומר על הסדר היחסי של איברים שווים. זה חשוב כשממיינים לפי מספר קריטריונים (למשל – תחילה לפי שם, ואז לפי גיל)."
+      }
     ],
-    quiz: { q: "מהי סיבוכיות הזמן הממוצעת של הקוד במיון יעיל טיפוסי?", options: ["O(N)", "O(1)", "O(N log N)", "O(N^2)"], answer: 2, explanation: "המיון היעיל כמו Merge/Quick פועל בסיבוכיות O(N log N)." }
+    quiz: [
+      {
+        q: "מהי סיבוכיות הזמן הגרועה (Worst Case) של Bubble Sort?",
+        options: ["O(N)", "O(N log N)", "O(N²)", "O(1)"],
+        answer: 2,
+        explanation: "Bubble Sort משווה כל זוג – N²/2 השוואות במקרה הגרוע ביותר → O(N²)"
+      },
+      {
+        q: "איזו מתודת Java ממיינת מערך פרימיטיבי במקום?",
+        options: ["Arrays.order(arr)", "Arrays.sort(arr)", "Collections.sort(arr)", "arr.sort()"],
+        answer: 1,
+        explanation: "Arrays.sort(arr) ממיין מערך פרימיטיבי במקום. Collections.sort עובד על Lists"
+      },
+      {
+        q: "מהי הסיבוכיות הממוצעת של Merge Sort?",
+        options: ["O(N²)", "O(N)", "O(N log N)", "O(log N)"],
+        answer: 2,
+        explanation: "Merge Sort תמיד O(N log N) – גרוע, ממוצע וטוב. זוהי סיבוכיות אופטימלית למיון מבוסס השוואות"
+      },
+      {
+        q: "מה ה'בועה' ב-Bubble Sort מייצגת?",
+        options: [
+          "איבר אקראי",
+          "האיבר הגדול ביותר שצף למיקומו הנכון בכל מעבר",
+          "ה-pivot",
+          "שגיאה בקוד"
+        ],
+        answer: 1,
+        explanation: "בכל מעבר, האיבר הגדול ביותר 'צף' לסוף – כמו בועת אוויר במים"
+      },
+      {
+        q: "מה עדיף: Arrays.sort() או Bubble Sort שכתבנו?",
+        options: [
+          "Bubble Sort כי אנחנו שולטים בקוד",
+          "Arrays.sort() – ממוטב, נבדק ומהיר בהרבה",
+          "תלוי בגודל המערך",
+          "שווה – אותה סיבוכיות"
+        ],
+        answer: 1,
+        explanation: "Arrays.sort() משתמש ב-Dual-Pivot QuickSort / Timsort – הרבה יותר מהיר ואמין מ-Bubble Sort ביישומים אמיתיים"
+      }
+    ]
   },
   {
     id: 11, emoji: "🌲", title: "Trees & Data Structures", subtitle: "לגדול מעלה",
     xpReward: 400, difficulty: "מוגזם",
-    meme: { text: "כשהעץ יוצא מאיזון", reaction: "🍂" },
+    meme: { text: "כשהעץ יוצא מאיזון", reaction: "🍂 AVL Tree has entered the chat" },
     lessons: [
-      { id: "11a", title: "עצים בינארים", content: "מבנה נתונים שבו לכל צומת עשויים להיות עד שני בנים.", code: "class Node {\n    int data;\n    Node left, right;\n}", funFact: "בתכנות עץ צומח מלמעלה למטה!" }
+      {
+        id: "11a", title: "עצים בינארים – מבוא",
+        content: `עץ בינארי (Binary Tree) = מבנה נתונים היררכי\n\nמונחים בסיסיים:\n🌱 Root    – הצומת העליון (אין לו הורה)\n🍃 Leaf    – צומת ללא ילדים\n🌿 Node    – כל צומת בעץ\n📏 Height  – המרחק הארוך ביותר מ-Root ל-Leaf\n\nכל Node מחזיק:\n• ערך (data)\n• הפניה לילד שמאלי\n• הפניה לילד ימיני`,
+        code: `class Node {
+    int data;
+    Node left;
+    Node right;
+
+    Node(int data) {
+        this.data  = data;
+        this.left  = null;
+        this.right = null;
+    }
+}
+
+public class BinaryTree {
+    Node root;
+
+    BinaryTree() { root = null; }
+
+    public static void main(String[] args) {
+        BinaryTree tree = new BinaryTree();
+
+        //        10
+        //       /  \\
+        //      5   15
+        //     / \\
+        //    3   7
+
+        tree.root              = new Node(10);
+        tree.root.left         = new Node(5);
+        tree.root.right        = new Node(15);
+        tree.root.left.left    = new Node(3);
+        tree.root.left.right   = new Node(7);
+
+        System.out.println("Root: "        + tree.root.data);       // 10
+        System.out.println("Left child: "  + tree.root.left.data);  // 5
+        System.out.println("Right child: " + tree.root.right.data); // 15
+    }
+}`,
+        funFact: "🧪 עץ מאוזן בגובה log₂(N) – עץ עם מיליון צמתים צריך רק ~20 רמות! זה מה שהופך חיפוש בעץ לאפקטיבי כל כך."
+      },
+      {
+        id: "11b", title: "Binary Search Tree – הכנסה וחיפוש",
+        content: `BST – Binary Search Tree:\n\nחוק ה-BST:\n• כל ערך בתת-עץ שמאלי < ערך הצומת הנוכחי\n• כל ערך בתת-עץ ימיני > ערך הצומת הנוכחי\n\nלמה זה שימושי?\n• חיפוש, הכנסה ומחיקה ב-O(log N) בממוצע!\n• מאורגן אוטומטית\n\nחיפוש ב-BST:\nאם target < node → לך שמאלה\nאם target > node → לך ימינה\nאם target = node → מצאת! 🎯`,
+        code: `class BSTNode {
+    int val;
+    BSTNode left, right;
+    BSTNode(int v) { val = v; }
+}
+
+public class BST {
+    BSTNode root;
+
+    // Insert a value
+    BSTNode insert(BSTNode node, int val) {
+        if (node == null)       return new BSTNode(val);
+        if (val < node.val)     node.left  = insert(node.left,  val);
+        else if (val > node.val) node.right = insert(node.right, val);
+        return node;
+    }
+
+    // Search for a value
+    boolean search(BSTNode node, int target) {
+        if (node == null)        return false;
+        if (target == node.val)  return true;
+        if (target < node.val)   return search(node.left,  target);
+        return                          search(node.right, target);
+    }
+
+    public static void main(String[] args) {
+        BST tree = new BST();
+        int[] values = {10, 5, 15, 3, 7, 12, 18};
+        for (int v : values)
+            tree.root = tree.insert(tree.root, v);
+
+        System.out.println(tree.search(tree.root, 7));   // true
+        System.out.println(tree.search(tree.root, 99));  // false
+        System.out.println(tree.search(tree.root, 12));  // true
+    }
+}`,
+        funFact: "📚 TreeMap ב-Java מיושמת בתוכה עם BST מאוזן (Red-Black Tree). כל get() ו-put() הם O(log N)!"
+      },
+      {
+        id: "11c", title: "מעברי עץ – In/Pre/Post-Order",
+        content: `Traversal = ביקור בכל צמתי העץ בסדר מסוים\n\n🔵 In-Order   (שמאל → שורש → ימין)\n   → מחזיר ערכים ממוינים ב-BST!\n\n🔴 Pre-Order  (שורש → שמאל → ימין)\n   → שמור/שחזר מבנה עץ\n\n🟢 Post-Order (שמאל → ימין → שורש)\n   → מחשב ביטויים, מוחק עץ\n\nלעץ:      10\n        /   \\\n       5    15\n      / \\\n     3   7\n\nIn:   3,5,7,10,15\nPre:  10,5,3,7,15\nPost: 3,7,5,15,10`,
+        code: `public class TreeTraversal {
+
+    static class Node {
+        int val; Node left, right;
+        Node(int v) { val = v; }
+    }
+
+    // In-Order: Left → Root → Right
+    static void inOrder(Node node) {
+        if (node == null) return;
+        inOrder(node.left);
+        System.out.print(node.val + " ");
+        inOrder(node.right);
+    }
+
+    // Pre-Order: Root → Left → Right
+    static void preOrder(Node node) {
+        if (node == null) return;
+        System.out.print(node.val + " ");
+        preOrder(node.left);
+        preOrder(node.right);
+    }
+
+    // Post-Order: Left → Right → Root
+    static void postOrder(Node node) {
+        if (node == null) return;
+        postOrder(node.left);
+        postOrder(node.right);
+        System.out.print(node.val + " ");
+    }
+
+    public static void main(String[] args) {
+        Node root       = new Node(10);
+        root.left       = new Node(5);
+        root.right      = new Node(15);
+        root.left.left  = new Node(3);
+        root.left.right = new Node(7);
+
+        System.out.print("In-Order:   "); inOrder(root);   System.out.println();
+        // In-Order:   3 5 7 10 15
+
+        System.out.print("Pre-Order:  "); preOrder(root);  System.out.println();
+        // Pre-Order:  10 5 3 7 15
+
+        System.out.print("Post-Order: "); postOrder(root); System.out.println();
+        // Post-Order: 3 7 5 15 10
+    }
+}`,
+        funFact: "🖩 מחשבוני ביטויים (expression evaluators) משתמשים ב-Post-Order traversal! 3+4 מיוצג כעץ ומחושב מהתחתית למעלה."
+      }
     ],
-    quiz: { q: "לאיזה חלק בעץ אין הורה?", options: ["Leaf", "Root", "Branch", "Trunk"], answer: 1, explanation: "צורת השורש, Root, נמצאת בקצה העץ ואין לה הורה." }
+    quiz: [
+      {
+        q: "מה זה Root בעץ?",
+        options: ["הצומת השמאלי ביותר", "הצומת ללא ילדים", "הצומת העליון ללא הורה", "הצומת הגדול ביותר"],
+        answer: 2,
+        explanation: "Root הוא הצומת בראש העץ – אין לו הורה. כל עץ מתחיל ממנו"
+      },
+      {
+        q: "מה החוק של BST?",
+        options: [
+          "ילד שמאלי > הורה > ילד ימיני",
+          "ילד שמאלי < הורה < ילד ימיני",
+          "כל הילדים שווים לשורש",
+          "אין חוק מסוים"
+        ],
+        answer: 1,
+        explanation: "ב-BST: ילד שמאלי < הורה < ילד ימיני. זה מאפשר חיפוש בינארי"
+      },
+      {
+        q: "In-Order traversal על BST מחזיר ערכים ב:",
+        options: ["סדר אקראי", "סדר יורד", "סדר עולה (ממוין)", "לפי גובה העץ"],
+        answer: 2,
+        explanation: "In-Order על BST = Left→Root→Right = ממוין בסדר עולה! זו תכונה יפה של BST"
+      },
+      {
+        q: "מה סדר הביקור ב-Pre-Order?",
+        options: [
+          "שמאל → שורש → ימין",
+          "שורש → שמאל → ימין",
+          "שמאל → ימין → שורש",
+          "ימין → שורש → שמאל"
+        ],
+        answer: 1,
+        explanation: "Pre-Order: קודם השורש (Pre = לפני), אחר כך שמאל, אחר כך ימין"
+      },
+      {
+        q: "מה זה Leaf בעץ?",
+        options: ["הצומת הגדול ביותר", "הצומת הקטן ביותר", "צומת ללא ילדים", "השורש"],
+        answer: 2,
+        explanation: "Leaf הוא צומת שאין לו ילדים כלל – הוא נמצא בקצה העץ"
+      }
+    ]
   }
 ];
